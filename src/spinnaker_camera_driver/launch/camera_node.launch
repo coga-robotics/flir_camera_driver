@@ -2,9 +2,9 @@
 <!--
 Software License Agreement (BSD)
 
-\file      camera.launch
-\authors   Michael Hosmar <mhosmar@clearpathrobotics.com>
-\copyright Copyright (c) 2018, Clearpath Robotics, Inc., All rights reserved.
+\file      camera_node.launch
+\authors   Assistant <assistant@example.com>
+\copyright Copyright (c) 2024, All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 the following conditions are met:
@@ -12,13 +12,13 @@ the following conditions are met:
    following disclaimer.
  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the 
    following disclaimer in the documentation and/or other materials provided with the distribution.
- * Neither the name of Clearpath Robotics nor the names of its contributors may be used to endorse or promote
+ * Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
    products derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WAR-
 RANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
 PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, IN-
-DIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+DIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO PROCUREMENT
 OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -61,13 +61,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   -->
 
   <group ns="$(arg camera_name)">
-    <!-- Nodelet manager -->
-    <node pkg="nodelet" type="nodelet" name="camera_nodelet_manager" args="manager" output="screen"/>
-
-    <!-- Camera nodelet -->
-    <node pkg="nodelet" type="nodelet" name="spinnaker_camera_nodelet"
-          args="load spinnaker_camera_driver/SpinnakerCameraNodelet camera_nodelet_manager" >
-
+    <!-- Camera node (일반 ROS 노드) -->
+    <node pkg="spinnaker_camera_driver" type="camera_node" name="spinnaker_camera_node" output="screen">
+      
       <param name="frame_id"                        value="$(arg camera_name)" />
       <param name="serial"                          value="$(arg camera_serial)" />
       <param name="device_type"                     value="$(arg device_type)" />
@@ -97,7 +93,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <param name="image_format_x_offset" value="128" />
       <param name="image_format_y_offset" value="122" />
       <param name="image_format_roi_width" value="1280" />
-      <param name="image_format_roi_height" value="720" />
+      <param name="image_format_y_height" value="720" />
       -->
 
       <!-- Use the camera_calibration package to create this file -->
@@ -105,9 +101,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
              value="file://$(env HOME)/camera.yaml" />
     </node>
 
-    <!-- Debayering nodelet -->
-    <node pkg="nodelet" type="nodelet" name="image_proc_debayer"
-          args="load image_proc/debayer camera_nodelet_manager">
+    <!-- Debayering node (일반 ROS 노드) -->
+    <node pkg="image_proc" type="image_proc" name="image_proc_debayer" output="screen">
+      <remap from="image_raw" to="image_raw" />
+      <remap from="image_mono" to="image_mono" />
+      <remap from="image_color" to="image_color" />
     </node>
   </group>
-</launch>
+</launch> 
